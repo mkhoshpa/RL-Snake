@@ -208,7 +208,7 @@ class DQNAgent(BaseAgent):
         self._optimizer = optim.Adam(self.policy_net.parameters())
         self._memory = ReplayMemory(10000)
 
-
+        episode_rewards = []
         #start training
         num_episodes = 50
         for i_episode in range(num_episodes):
@@ -232,7 +232,7 @@ class DQNAgent(BaseAgent):
                 # Perform one step of the optimization (on the target network)
                 self._optimize_model()
                 if done:
-                    episode_durations.append(t + 1)
+                    episode_rewards.append(game.cur_reward)
                     plot_durations()
                     break
             # Update the target network, copying all weights and biases in DQN
