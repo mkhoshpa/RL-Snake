@@ -1,6 +1,6 @@
 from Board import Board
 from Snake import Snake
-from Agent import *
+import Agent
 from GUI import App
 import random
 
@@ -15,7 +15,7 @@ class Game:
     """
 
     """
-    def __init__(self,board_size,start_board_snake=None,agent=RandomAgent(),cur_reward=0):
+    def __init__(self,board_size,agent,start_board_snake=None,cur_reward=0):
         """
 
         Args:
@@ -33,7 +33,7 @@ class Game:
             self.board.put_snake_on_board(self.snake)
             i, j = self.new_food_location()
             self.board.set_food((i,j))
-            self.board.set_cell(i, j, 'f')
+            self.board.set_cell(i, j, 2)
         else:
             self.board = start_board_snake[0]
             self.snake = start_board_snake[1]
@@ -51,7 +51,7 @@ class Game:
         if out == 1:
             self.cur_reward += 1
             i,j = self.new_food_location()
-            self.board.set_cell(i,j,'f')
+            self.board.set_cell(i,j,2)
             self.board.set_food((i,j))
         self.agent.update(self.board.get_board())
         return out
@@ -76,7 +76,9 @@ class Game:
         return empty_cells[random.randrange(len(empty_cells))]
 
 
-def run_gui_game(board_size,start_board_snake=None,agent=RandomAgent()):
+
+
+def run_gui_game(board_size,agent,start_board_snake=None):
     """
 
     Args:
@@ -103,4 +105,5 @@ def run_gui_game(board_size,start_board_snake=None,agent=RandomAgent()):
 
 
 if __name__ == "__main__":
-    run_gui_game((10,10))
+    #run_gui_game((10,10))
+    game = Game(board_size=(20,20), agent=Agent.DQNAgent((20,20), trained = False))

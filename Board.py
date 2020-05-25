@@ -15,9 +15,9 @@ class Board:
         size of the board in y axis
     board : list
         a list containing the each cell of the board
-        '0' represent empty cell
-        'x' represent snake body part
-
+        0 represents empty cell
+        1 represents snake body part
+        2 represents food
     Methods
     -------
     put_snake_on_board(snake: Snake)
@@ -51,7 +51,7 @@ class Board:
 
         board = [[0 for j in range(self.size_y)] for i in range(self.size_x)]
         if len(self.food) == 2:
-            board[self.food[0]][self.food[1]] = 'f'
+            board[self.food[0]][self.food[1]] = 2
         reward = 0
         for body_part in snake.get_body():
             x,y = body_part[0],body_part[1]
@@ -59,11 +59,11 @@ class Board:
                 return -1
             if y > self.size_y -1 or y<0:
                 return -1
-            if board[x][y] == 'x':
+            if board[x][y] == 1:
                 return -1
-            if board[x][y] == 'f':
+            if board[x][y] == 2:
                 reward = 1
-            board[x][y] = 'x'
+            board[x][y] = 1
         self.board = board
         return reward
 
