@@ -60,11 +60,11 @@ class Game:
         """
         Asks the agent to take a action and update the snake accordingly
         Returns:
-            None
+            int index of action in ACTIONS if is 4 means do nothing
         """
-        action = self.agent.take_action()
-        if action in ACTIONS:
-            self.snake.set_direction(action)
+        action = self.agent.take_action().item()
+        if action < len(ACTIONS):
+            self.snake.set_direction(ACTIONS[action])
         return action
 
     def new_food_location(self):
@@ -106,4 +106,4 @@ def run_gui_game(board_size,agent,start_board_snake=None):
 
 if __name__ == "__main__":
     #run_gui_game((10,10))
-    game = Game(board_size=(20,20), agent=Agent.DQNAgent((20,20), trained = False))
+    game = Game(board_size=(10,10), agent=Agent.DQNAgent((10,10), trained = False))

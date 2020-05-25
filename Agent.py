@@ -21,7 +21,7 @@ ACTIONS = [UP,DOWN,LEFT,RIGHT]
 
 
 BATCH_SIZE = 128
-GAMMA = 0.999
+GAMMA = 0.95
 EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 200
@@ -82,36 +82,61 @@ class RandomAgent(BaseAgent):
 
 
 class DQN(nn.Module):
+        """
+
+        """
         def __init__(self, h, w, outputs):
-            print(outputs)
+            """
+
+            Args:
+                h: height of the board
+                w: width of the board
+                outputs: number of actions
+            """
             super(DQN, self).__init__()
             self.conv1 = nn.Conv2d(2, 16, kernel_size=5, stride=1)
             self.bn1 = nn.BatchNorm2d(16)
             self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1)
             self.bn2 = nn.BatchNorm2d(32)
-
+            self.conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+            self.bn3 = nn.BatchNorm2d(32)
 
             # Number of Linear input connections depends on output of conv2d layers
             # and therefore the input image size, so compute it.
             def conv2d_size_out(size, kernel_size=5, stride=1):
                 return (size - (kernel_size - 1) - 1) // stride + 1
 
-            convw = conv2d_size_out(conv2d_size_out(w))
-            convh = conv2d_size_out(conv2d_size_out(h))
+            convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(w)))
+            convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
             linear_input_size = convw * convh * 32
             self.head = nn.Linear(linear_input_size, outputs)
 
         # Called with either one element to determine next action, or a batch
         # during optimization. Returns tensor([[left0exp,right0exp]...]).
         def forward(self, x):
+            """
+
+            Args:
+                x: Tensor representation of input states
+
+            Returns:
+                list of int: representing the Q values of each state-action pair
+            """
             x = F.relu(self.bn1(self.conv1(x)))
             x = F.relu(self.bn2(self.conv2(x)))
+            x = F.relu(self.bn3(self.conv3(x)))
             return self.head(x.view(x.size(0), -1))
 
 
 class DQNAgent(BaseAgent):
 
     def __init__(self,board_size=(20,20),trained=False):
+        """
+        An agent based on DQN. uses policy_net to select an action
+        Args:
+            board_size: tuple: height and width of the board
+            trained: if True, the agent is already trained and there is no need to train the agent
+        """
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.n_actions = len(ACTIONS) + 1
@@ -126,9 +151,20 @@ class DQNAgent(BaseAgent):
         if trained is False:
             self.train()
 
-    def select_action(self,state):
+    def take_action(self):
+        """
+        select an action based on the given state
+        Args:
+
+        Returns:
+            action: int.
+        """
+        state = self.get_state()
         if state is None:
-            return None
+            return torch.tensor([4])
+        # make sure state is in the form of B*C*W*H
+        if len(state.shape) == 3:
+            state = state.unsqueeze(0).float()
         sample = random.random()
         eps_threshold = EPS_END + (EPS_START - EPS_END) * \
                         math.exp(-1. * self.steps_done / EPS_DECAY)
@@ -139,14 +175,17 @@ class DQNAgent(BaseAgent):
                 # second column on max result is index of where max element was
                 # found, so we pick action with the larger expected reward.
                 out = self.policy_net(state).max(1)[1].view(1, 1)
-                if out == 4:
-                    return None
+                return out
         else:
             out =  torch.tensor([[random.randrange(self.n_actions)]], device=self.device, dtype=torch.long)
-            if out == 4:
-                return None
+            return out
 
     def _optimize_model(self):
+        """
+
+        Returns:
+
+        """
         if len(self._memory) < BATCH_SIZE:
             return
         transitions = self._memory.sample(BATCH_SIZE)
@@ -164,11 +203,11 @@ class DQNAgent(BaseAgent):
         state_batch = torch.stack(batch.state)
         action_batch = torch.stack(batch.action)
         reward_batch = torch.stack(batch.reward)
-
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
         # for each batch state according to policy_net
-        temp = self.policy_net(state_batch.float())
+        temp = action_batch.unsqueeze(1)
+        temp2 = self.policy_net(state_batch.float())
         state_action_values = self.policy_net(state_batch.float()).gather(1, action_batch.unsqueeze(1))
 
         # Compute V(s_{t+1}) for all next states.
@@ -192,6 +231,11 @@ class DQNAgent(BaseAgent):
         self._optimizer.step()
 
     def train(self):
+        """
+
+        Returns:
+
+        """
         #named tuple rpresenting the transition ('state', 'action') -> 'next_state', 'reward'
         Transition = namedtuple('Transition',
                                 ('state', 'action', 'next_state', 'reward'))
@@ -218,11 +262,11 @@ class DQNAgent(BaseAgent):
                 return len(self.memory)
 
         self._optimizer = optim.Adam(self.policy_net.parameters())
-        self._memory = ReplayMemory(10000)
+        self._memory = ReplayMemory(20000)
 
         episode_rewards = []
         #start training
-        num_episodes = 500
+        num_episodes = 500000
         for i_episode in range(num_episodes):
             # Initialize the environment and state
             game = Game.Game(board_size=self.board_size, agent=self)
@@ -231,9 +275,6 @@ class DQNAgent(BaseAgent):
                 # Select and perform an action
                 old_state = self.get_state()
                 action = game.receive_action()
-                action_int = 4
-                if action in ACTIONS:
-                    action_int = ACTIONS.index(action)
                 reward = game.one_time_step()
                 done = True if reward == -1 else False
                 reward = torch.tensor([reward], device=self.device)
@@ -243,7 +284,7 @@ class DQNAgent(BaseAgent):
 
                 # Store the transition in memory
                 if old_state is not None and new_state is not None:
-                    self._memory.push(old_state, torch.tensor(action_int,device=self.device), new_state, reward)
+                    self._memory.push(old_state, torch.tensor(action,device=self.device), new_state, reward)
 
                 # Perform one step of the optimization (on the target network)
                 self._optimize_model()
@@ -254,4 +295,6 @@ class DQNAgent(BaseAgent):
             # Update the target network, copying all weights and biases in DQN
             if i_episode % TARGET_UPDATE == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
+            if i_episode % 200 == 0:
+                plot_durations(episode_rewards)
         plot_durations(episode_rewards)
