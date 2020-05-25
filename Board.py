@@ -104,4 +104,12 @@ class Board:
         self.board[i][j] = cell
 
     def set_food(self,food):
+        """
+        sets the location of the food in the food attribute
+        Args:
+            food: tuple of two ints
+                column, row if the food.
+        Returns:
+
+        """
         self.food = food

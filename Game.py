@@ -1,6 +1,7 @@
 from Board import Board
 from Snake import Snake
 from Agent import *
+from GUI import App
 import random
 
 UP = 'up'
@@ -74,7 +75,7 @@ class Game:
         return empty_cells[random.randrange(len(empty_cells))]
 
 
-def run_game(board_size,start_board_snake=None,agent=RandomAgent()):
+def run_gui_game(board_size,start_board_snake=None,agent=RandomAgent()):
     """
 
     Args:
@@ -89,14 +90,16 @@ def run_game(board_size,start_board_snake=None,agent=RandomAgent()):
         game = Game(board_size=board_size,agent=agent)
     else:
         game = Game(board_size=board_size,start_board_snake=start_board_snake,agent=agent)
-    while True:
-        game.receive_action()
-        reward = game.one_time_step()
-        print(game.board)
-        if reward == -1:
-            print('total reward was: ',game.cur_reward)
-            break
+    app = App(game=game,rows=board_size[0],cols=board_size[1])
+    app.mainloop()
+    #while True:
+    #    game.receive_action()
+    #    reward = game.one_time_step()
+    #    print(game.board)
+    #    if reward == -1:
+    #        print('total reward was: ',game.cur_reward)
+    #        break
 
 
 if __name__ == "__main__":
-    run_game((10,10))
+    run_gui_game((10,10))
