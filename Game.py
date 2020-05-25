@@ -65,6 +65,7 @@ class Game:
         action = self.agent.take_action()
         if action in ACTIONS:
             self.snake.set_direction(action)
+        return action
 
     def new_food_location(self):
         empty_cells = []
