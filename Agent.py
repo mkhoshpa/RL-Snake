@@ -21,13 +21,14 @@ RIGHT = 'right'
 ACTIONS = [UP,DOWN,LEFT,RIGHT]
 
 
-BATCH_SIZE = 64
-GAMMA = 0.9
+BATCH_SIZE = 128
+GAMMA = 0.99
 EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 150
-TARGET_UPDATE = 5
-MODEL_DIR = 'model'
+TARGET_UPDATE = 10
+MODEL_DIR = 'new_model2'
+
 
 class BaseAgent:
     """

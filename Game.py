@@ -29,7 +29,7 @@ class Game:
             x, y = board_size
             self.board_size = board_size
             self.board = Board(x,y)
-            self.snake = Snake(random.randrange(x-2)+1,random.randrange(y-5)+3,UP,board_size=(x,y))
+            self.snake = Snake(5,5,UP,board_size=(x,y))
             self.board.put_snake_on_board(self.snake)
             i, j = self.new_food_location()
             self.board.set_food((i,j))
