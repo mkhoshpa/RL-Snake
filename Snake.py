@@ -128,3 +128,6 @@ class Snake:
             self.direction = direction
         else:
             raise Exception('Direction is invalid')
+
+    def get_head(self):
+        return self.head

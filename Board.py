@@ -59,11 +59,13 @@ class Board:
                 return -10
             if y > self.size_y -1 or y<0:
                 return -10
-            if board[x][y] == 1:
-                return -10
-            if board[x][y] == -20:
+            if board[x][y] == 1 or board[x][y] == 2:
+                reward =  -10
+            elif board[x][y] == -20:
                 reward = 10
             board[x][y] = 1
+        head_x,head_y = snake.get_head()
+        board[head_x][head_y] = 2
         self.board = board
         return reward
 

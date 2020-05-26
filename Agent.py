@@ -11,6 +11,7 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import os
 import torchvision.transforms as T
 
 UP = 'up'
@@ -26,7 +27,7 @@ EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 150
 TARGET_UPDATE = 5
-
+MODEL_DIR = 'model'
 
 class BaseAgent:
     """
@@ -155,7 +156,7 @@ class DQNAgent(BaseAgent):
         """
         select an action based on the given state
         Args:
-
+            None
         Returns:
             action: int.
         """
@@ -182,9 +183,10 @@ class DQNAgent(BaseAgent):
 
     def _optimize_model(self):
         """
+        trains the policy_net for one batch.
 
         Returns:
-
+            None
         """
         if len(self._memory) < BATCH_SIZE:
             return
@@ -230,9 +232,9 @@ class DQNAgent(BaseAgent):
 
     def train(self):
         """
-
+            trains the policy_net from scratch for fixed number of episodes.
         Returns:
-
+            None
         """
         #named tuple rpresenting the transition ('state', 'action') -> 'next_state', 'reward'
         Transition = namedtuple('Transition',
@@ -289,9 +291,15 @@ class DQNAgent(BaseAgent):
                 if done:
                     episode_rewards.append(game.cur_reward)
                     break
+
             # Update the target network, copying all weights and biases in DQN
             if i_episode % TARGET_UPDATE == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
+
+            # Plot the game score history every 100 episodes
             if i_episode % 100 == 0:
                 plot_durations(episode_rewards)
+                if not os.path.exists(MODEL_DIR):
+                    os.mkdir(MODEL_DIR)
+                torch.save(self.policy_net.state_dict(),MODEL_DIR+'/policy_net-'+str(i_episode)+'.pth')
         plot_durations(episode_rewards)
