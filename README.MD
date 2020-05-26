@@ -7,4 +7,6 @@ current progress:
     
     Random Agent: Done.
     
-    Grapic: in progress.
+    Grapic: Done.
+    
+    DQN agent: In progress.

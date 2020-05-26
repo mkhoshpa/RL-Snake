@@ -29,11 +29,11 @@ class Game:
             x, y = board_size
             self.board_size = board_size
             self.board = Board(x,y)
-            self.snake = Snake(5,4,UP,board_size=(x,y))
+            self.snake = Snake(random.randrange(x-2)+1,random.randrange(y-5)+3,UP,board_size=(x,y))
             self.board.put_snake_on_board(self.snake)
             i, j = self.new_food_location()
             self.board.set_food((i,j))
-            self.board.set_cell(i, j, 2)
+            self.board.set_cell(i, j, -20)
         else:
             self.board = start_board_snake[0]
             self.snake = start_board_snake[1]
@@ -48,10 +48,10 @@ class Game:
         """
         self.snake.move_one_step_without_eating()
         out = self.board.put_snake_on_board(self.snake)
-        if out == 1:
+        if out == 10:
             self.cur_reward += 1
             i,j = self.new_food_location()
-            self.board.set_cell(i,j,2)
+            self.board.set_cell(i,j,-20)
             self.board.set_food((i,j))
         self.agent.update(self.board.get_board())
         return out
@@ -106,4 +106,4 @@ def run_gui_game(board_size,agent,start_board_snake=None):
 
 if __name__ == "__main__":
     #run_gui_game((10,10))
-    game = Game(board_size=(10,10), agent=Agent.DQNAgent((10,10), trained = False))
+    game = Game(board_size=(15,15), agent=Agent.DQNAgent((15,15), trained = False))

@@ -20,12 +20,12 @@ RIGHT = 'right'
 ACTIONS = [UP,DOWN,LEFT,RIGHT]
 
 
-BATCH_SIZE = 128
-GAMMA = 0.95
+BATCH_SIZE = 64
+GAMMA = 0.9
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 200
-TARGET_UPDATE = 10
+EPS_DECAY = 150
+TARGET_UPDATE = 5
 
 
 class BaseAgent:
@@ -94,16 +94,16 @@ class DQN(nn.Module):
                 outputs: number of actions
             """
             super(DQN, self).__init__()
-            self.conv1 = nn.Conv2d(2, 16, kernel_size=5, stride=1)
+            self.conv1 = nn.Conv2d(2, 16, kernel_size=3, stride=1)
             self.bn1 = nn.BatchNorm2d(16)
-            self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1)
+            self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1)
             self.bn2 = nn.BatchNorm2d(32)
-            self.conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+            self.conv3 = nn.Conv2d(32, 32, kernel_size=3, stride=1)
             self.bn3 = nn.BatchNorm2d(32)
 
             # Number of Linear input connections depends on output of conv2d layers
             # and therefore the input image size, so compute it.
-            def conv2d_size_out(size, kernel_size=5, stride=1):
+            def conv2d_size_out(size, kernel_size=3, stride=1):
                 return (size - (kernel_size - 1) - 1) // stride + 1
 
             convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(w)))
@@ -206,8 +206,6 @@ class DQNAgent(BaseAgent):
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
         # for each batch state according to policy_net
-        temp = action_batch.unsqueeze(1)
-        temp2 = self.policy_net(state_batch.float())
         state_action_values = self.policy_net(state_batch.float()).gather(1, action_batch.unsqueeze(1))
 
         # Compute V(s_{t+1}) for all next states.
@@ -276,7 +274,7 @@ class DQNAgent(BaseAgent):
                 old_state = self.get_state()
                 action = game.receive_action()
                 reward = game.one_time_step()
-                done = True if reward == -1 else False
+                done = True if reward == -10 else False
                 reward = torch.tensor([reward], device=self.device)
 
                 # Observe new state
@@ -290,11 +288,10 @@ class DQNAgent(BaseAgent):
                 self._optimize_model()
                 if done:
                     episode_rewards.append(game.cur_reward)
-
                     break
             # Update the target network, copying all weights and biases in DQN
             if i_episode % TARGET_UPDATE == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
-            if i_episode % 200 == 0:
+            if i_episode % 100 == 0:
                 plot_durations(episode_rewards)
         plot_durations(episode_rewards)
