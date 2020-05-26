@@ -21,14 +21,14 @@ RIGHT = 'right'
 ACTIONS = [UP,DOWN,LEFT,RIGHT]
 
 
-BATCH_SIZE = 128
-GAMMA = 0.99
+BATCH_SIZE = 64
+GAMMA = 0.9
 EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 150
-TARGET_UPDATE = 10
-MODEL_DIR = 'new_model2'
-
+TARGET_UPDATE = 5
+MODEL_DIR = 'model'
+num_episodes = 10000
 
 class BaseAgent:
     """
@@ -132,7 +132,7 @@ class DQN(nn.Module):
 
 class DQNAgent(BaseAgent):
 
-    def __init__(self,board_size=(20,20),trained=False):
+    def __init__(self,board_size=(20,20),path=None):
         """
         An agent based on DQN. uses policy_net to select an action
         Args:
@@ -150,8 +150,13 @@ class DQNAgent(BaseAgent):
         self.steps_done = 0
         self.transitions = namedtuple('Transition',
                                       ('state', 'action', 'next_state', 'reward'))
-        if trained is False:
+        if path is None:
             self.train()
+            self.trained = False
+        else:
+            self.policy_net.load_state_dict(torch.load(path))
+            self.trained = True
+
 
     def take_action(self):
         """
@@ -171,7 +176,7 @@ class DQNAgent(BaseAgent):
         eps_threshold = EPS_END + (EPS_START - EPS_END) * \
                         math.exp(-1. * self.steps_done / EPS_DECAY)
         self.steps_done += 1
-        if sample > eps_threshold:
+        if self.trained or sample > eps_threshold:
             with torch.no_grad():
                 # t.max(1) will return largest column value of each row.
                 # second column on max result is index of where max element was
@@ -267,7 +272,7 @@ class DQNAgent(BaseAgent):
 
         episode_rewards = []
         #start training
-        num_episodes = 500000
+
         for i_episode in range(num_episodes):
             # Initialize the environment and state
             game = Game.Game(board_size=self.board_size, agent=self)

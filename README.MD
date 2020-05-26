@@ -1,12 +1,16 @@
-DQN agent for the snake Game.
+Python Implementation of Snake. This implementation comes with a DQN agent.
+Interested in Knowing How it works? Check out here.
+
+Usage:
+
+####Train:
+    board_size = (15,15)
+    dqn_agent = Agent.DQNAgent(board_size, path = False)
 
 
-current progress:
+####Load a pre-trained agent:
+    dqn_agent = Agent.DQNAgent(board_size, path = PATH)
 
-    Game Backend: Done.
-    
-    Random Agent: Done.
-    
-    Grapic: Done.
-    
-    DQN agent: In progress.
+
+####View GUI of the game
+    run_gui_game(board_size,dqn_agent)
