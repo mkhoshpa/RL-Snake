@@ -1,6 +1,3 @@
-from Snake import Snake
-
-
 class Board:
     """
     A class used to represent a board

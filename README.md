@@ -1,16 +1,21 @@
-Python Implementation of Snake. This implementation comes with a DQN agent.
+# Snake-RL
+
+A Python environment of the game of Snake to train Reinforcement Learning agents
+. This implementation comes with a DQN agent.
 Interested in Knowing How it works? Check out here.
-
-Usage:
-
+![](img/snake.gif)
+## Installation
+     pip install -i https://test.pypi.org/simple/ RL-Snake-mkhoshpa
+## Usage:
+    import RL_Snake
 #### Train:
     board_size = (15,15)
-    dqn_agent = Agent.DQNAgent(board_size, path = False)
+    dqn_agent = RL_Snake.DQNAgent(board_size, path = None)
 
 
 #### Load a pre-trained agent:
-    dqn_agent = Agent.DQNAgent(board_size, path = PATH)
+    dqn_agent = RL_Snake.DQNAgent(board_size, path = PATH)
 
 
 #### View GUI of the game
-    run_gui_game(board_size,dqn_agent)
+    RL_Snake.run_gui_game(board_size,dqn_agent)

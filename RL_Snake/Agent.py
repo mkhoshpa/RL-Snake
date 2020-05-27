@@ -1,9 +1,8 @@
-import Game
-from helper import plot_durations
+from .Game import Game
+from .helper import plot_durations
 
 from collections import namedtuple
 from itertools import count
-from PIL import Image
 import math
 import random
 import torch
@@ -12,7 +11,6 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import os
-import torchvision.transforms as T
 
 UP = 'up'
 DOWN = 'down'
@@ -27,7 +25,7 @@ EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 150
 TARGET_UPDATE = 5
-MODEL_DIR = 'model'
+MODEL_DIR = '../model'
 num_episodes = 10000
 
 class BaseAgent:
@@ -150,6 +148,7 @@ class DQNAgent(BaseAgent):
         self.steps_done = 0
         self.transitions = namedtuple('Transition',
                                       ('state', 'action', 'next_state', 'reward'))
+        self.trained = False
         if path is None:
             self.train()
             self.trained = False
@@ -275,7 +274,7 @@ class DQNAgent(BaseAgent):
 
         for i_episode in range(num_episodes):
             # Initialize the environment and state
-            game = Game.Game(board_size=self.board_size, agent=self)
+            game = Game(board_size=self.board_size, agent=self)
             state = self.get_state()
             for t in count():
                 # Select and perform an action

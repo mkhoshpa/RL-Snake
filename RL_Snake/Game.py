@@ -1,7 +1,6 @@
-from Board import Board
-from Snake import Snake
-import Agent
-from GUI import App
+from .Board import Board
+from .Snake import Snake
+from .GUI import App
 import random
 
 UP = 'up'
@@ -104,6 +103,6 @@ def run_gui_game(board_size,agent,start_board_snake=None):
     #        break
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     #run_gui_game((10,10))
-    game = Game(board_size=(15,15), agent=Agent.DQNAgent((15,15), trained = False))
+#    game = Game(board_size=(15,15), agent=DQNAgent((15, 15), path = None))
