@@ -16,7 +16,8 @@ UP = 'up'
 DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
-ACTIONS = [UP,DOWN,LEFT,RIGHT]
+NA = 'None'
+ACTIONS = {UP:0,DOWN:1,LEFT:2,RIGHT:3,NA:4}
 
 
 BATCH_SIZE = 64
@@ -70,15 +71,17 @@ class RandomAgent(BaseAgent):
     """
     Concrete agent class that take actions randomly
     """
+
     def take_action(self):
         """
         take actions randomly
         Returns:
-            str or None: represent the action
+            int or None: represent the action
         """
-        if self.state[0] is None or self.state[1] is None:
-            return None
-        return ACTIONS[random.randrange(len(ACTIONS))]
+        state = self.get_state()
+        if state is None:
+            return ACTIONS[NA]
+        return random.sample(ACTIONS.values(), 1)
 
 
 class DQN(nn.Module):
@@ -139,7 +142,7 @@ class DQNAgent(BaseAgent):
         """
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.n_actions = len(ACTIONS) + 1
+        self.n_actions = len(ACTIONS)
         self.board_size = board_size
         self.policy_net = DQN(board_size[0],board_size[1],outputs=self.n_actions)
         self.target_net = DQN(board_size[0], board_size[1], outputs=self.n_actions)
