@@ -1,4 +1,4 @@
-# Snake-RL
+# RL-Snake
 
 A Python environment of the game of Snake to train Reinforcement Learning agents
 . This implementation comes with a DQN agent.
