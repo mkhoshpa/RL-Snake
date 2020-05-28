@@ -2,7 +2,7 @@
 
 A Python environment of the game of Snake to train Reinforcement Learning agents
 . This implementation comes with a DQN agent.
-Interested in Knowing How it works? Check out here.
+Interested in Knowing How it works? Check out [here](https://mkhoshpa.github.io/RLSnake/).
 ![](img/snake.gif)
 ## Installation
      pip install -i https://test.pypi.org/simple/ RL-Snake-mkhoshpa
